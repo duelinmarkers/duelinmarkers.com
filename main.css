@@ -1,0 +1,15 @@
+body {
+    font-family: sans-serif;
+    color: #333;
+    background-color: #eee;
+    font-size: 150%;
+    line-height: 200%;
+}
+
+h1, h2 {
+    font-weight: normal;
+}
+
+ul {
+    list-style-type: none;
+}
