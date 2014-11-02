@@ -18,3 +18,10 @@ h1, h2 {
 ul {
     list-style-type: none;
 }
+
+.notice {
+    font-size: 120%;
+    background-color: white;
+    padding: 1em;
+    margin: 1em;
+}
