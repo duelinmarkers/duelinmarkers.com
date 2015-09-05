@@ -2,7 +2,7 @@ body {
     font-family: sans-serif;
     color: #333;
     background-color: #eee;
-    font-size: 140%;
+    font-size: 120%;
     line-height: 200%;
     text-shadow: rgba(0, 0, 0, 0.3) 0 0 15px;
 }
@@ -15,8 +15,22 @@ h1, h2 {
     font-weight: normal;
 }
 
+h1, h2, h3 {
+    margin-bottom: 1ex;
+}
+
 ul {
     list-style-type: none;
+}
+
+.rightsidebar {
+    float: right;
+    width: 300px;
+    background-color: #f7f7f7;
+    padding: 10px;
+    margin-left: 10px;
+    border: 1px solid #e8e8e8;
+    border-radius: 5px;
 }
 
 .notice {
