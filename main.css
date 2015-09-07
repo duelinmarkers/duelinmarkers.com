@@ -64,6 +64,10 @@ header h2:before {
     border-radius: 5px;
 }
 
+iframe.video-embed {
+    max-width: 100%;
+}
+
 footer {
     font-size: 60%;
     color: #aaa;
