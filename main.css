@@ -67,6 +67,11 @@ header h2:before {
     border-radius: 5px;
 }
 
+img.floatright {
+    float: right;
+    margin: 1ex 0 1ex 1em;
+}
+
 iframe.video-embed {
     max-width: 100%;
 }
