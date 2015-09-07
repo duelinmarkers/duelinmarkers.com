@@ -1,5 +1,5 @@
 body {
-    margin: 0;
+    margin: 0 1%;
     background-color: #eee;
     color: #333;
     font-family: CarlitoRegular, Calibri, sans-serif;
@@ -18,9 +18,8 @@ h1, h2, h3, h4 {
 }
 
 header {
-    margin: 1ex 1%;
-    margin-right: 31%;
-    padding: 1em;
+    margin: 1ex 31% 1ex auto;
+    max-width: 800px;
     background-color: white;
     border: 1px solid #e8e8e8;
     border-radius: 5px;
@@ -29,15 +28,19 @@ header {
 
 header h1 {
     float: left;
+    margin-left: .5em;
+    margin-right: .5em;
 }
 
 header h2 {
     text-align: right;
+    margin: .75em .5em .25em .5em;
 }
 
 header h2:before {
-    font-size: 75%;
     content: 'aka ';
+    font-size: 75%;
+    white-space: nowrap;
 }
 
 .rightsidebar {
@@ -52,7 +55,7 @@ header h2:before {
 }
 
 .main {
-    margin: 0 31% 1ex 1%;
+    margin: 0 31% 1ex auto;
     max-width: 800px;
 }
 
@@ -76,11 +79,11 @@ footer {
 
 @media (max-width: 860px) {
     header {
-        margin-right: 1%;
+        margin-right: auto;
     }
 
     .main {
-        margin-right: 1%;
+        margin-right: auto;
     }
 
     .rightsidebar {
@@ -88,6 +91,6 @@ footer {
         top: 0;
         right: 0;
         left: 0;
-        margin: 1ex 1%;
+        margin: 1ex auto;
     }
 }
