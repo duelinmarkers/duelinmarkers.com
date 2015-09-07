@@ -18,9 +18,9 @@ h1, h2, h3, h4 {
 }
 
 header {
-    margin: 10px;
-    margin-right: 340px;
-    padding: 10px;
+    margin: 1ex 1%;
+    margin-right: 31%;
+    padding: 1em;
     background-color: white;
     border: 1px solid #e8e8e8;
     border-radius: 5px;
@@ -42,23 +42,23 @@ header h2:before {
 
 .rightsidebar {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 300px;
+    top: 1ex;
+    right: 1%;
+    left: 70%;
     background-color: #f7f7f7;
-    padding: 10px;
+    padding: 1em;
     border: 1px solid #e8e8e8;
     border-radius: 5px;
 }
 
 .main {
-    margin: 10px;
-    margin-right: 340px;
+    margin: 0 31% 1em 1%;
+    max-width: 800px;
 }
 
 .main article {
-    margin: 10px 0;
-    padding: 10px;
+    margin: 0 0 1ex 0;
+    padding: 1em;
     background-color: white;
     border: 1px solid #e8e8e8;
     border-radius: 5px;
