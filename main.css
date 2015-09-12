@@ -8,8 +8,16 @@ body {
     text-shadow: rgba(0, 0, 0, 0.3) 0 0 15px;
 }
 
-a {
+a:link, a:visited {
+    color: inherit;
     text-decoration: none;
+    border-bottom: 1px solid #d9e6ff;
+    box-shadow: inset 0 -5px 0 #d9e6ff;
+}
+
+a:hover, a:active {
+    border-top: 5px solid #d9e6ff;
+    background-color: #d9e6ff;
 }
 
 h1, h2, h3, h4 {
