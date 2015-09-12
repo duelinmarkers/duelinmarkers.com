@@ -90,7 +90,7 @@ footer {
     text-align: center;
 }
 
-@media (max-width: 860px) { /* Lil browsers. */
+@media (max-width: 860px) {
     header {
         margin-right: auto;
     }
@@ -99,7 +99,6 @@ footer {
         margin-right: auto;
     }
 
-    /* Instead of a sidebar, a prefooter. */
     .rightsidebar {
         position: relative;
         top: 0;
