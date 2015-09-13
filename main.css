@@ -116,3 +116,9 @@ footer {
         margin: 1ex auto;
     }
 }
+
+@media (max-width: 500px) {
+    body {
+        font-size: 100%;
+    }
+}
