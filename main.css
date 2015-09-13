@@ -22,6 +22,7 @@ a:hover, a:active {
 }
 
 h1, h2, h3, h4 {
+    font-family: CarlitoBoldItalic, Calibri, sans-serif;
     margin: 1ex 0;
     font-style: italic;
 }
