@@ -1,24 +1,23 @@
 /* See paletton.css for more colors. */
 body {
     margin: 0 1%;
-    background-color: #fffbf8;
-    color: #333;
+    background-color: #D8C773;
+    color: #000;
     font-family: CarlitoRegular, Calibri, sans-serif;
     font-size: 120%;
     line-height: 180%;
-    text-shadow: rgba(0, 0, 0, 0.3) 0 0 15px;
 }
 
 a:link, a:visited {
-    color: #447474;
+    color: #453578;
     text-decoration: none;
-    border-bottom: 1px solid #d3f2f2;
-    box-shadow: inset 0 -5px 0 #d3f2f2;
+    border-bottom: 1px solid #d5d1e2;
+    box-shadow: inset 0 -5px 0 #d5d1e2;
 }
 
 a:hover, a:active {
-    border-top: 5px solid #d3f2f2;
-    background-color: #d3f2f2;
+    border-top: 5px solid #d5d1e2;
+    background-color: #d5d1e2;
 }
 
 h1, h2, h3, h4 {
@@ -30,20 +29,20 @@ h1, h2, h3, h4 {
 header {
     margin: 1ex 31% 1ex auto;
     max-width: 800px;
-    background-color: white;
-    border: 1px solid #ffdabc;
+    background-color: #fffbf0;
+    border: 1px solid #AF9C40;
     border-radius: 5px;
 }
 
 header h1 {
-    color: #447474;
+    color: #453578;
     float: left;
     margin-left: .5em;
     margin-right: .5em;
 }
 
 header h2 {
-    color: #7ba7a7;
+    color: #665795;
     text-align: right;
     margin: .75em .5em .25em .5em;
 }
@@ -59,10 +58,14 @@ header h2:before {
     top: 1ex;
     right: 1%;
     left: 70%;
-    background-color: #ffeddf;
+    background-color: #FFF7D2;
     padding: 1em;
-    border: 1px solid #ffdabc;
+    border: 1px solid #AF9C40;
     border-radius: 5px;
+}
+
+.rightsidebar h3 {
+    color: #84721B;
 }
 
 .main {
@@ -73,13 +76,13 @@ header h2:before {
 .main article {
     margin: 0 0 1ex 0;
     padding: 1em;
-    background-color: white;
-    border: 1px solid #ffdabc;
+    background-color: #fffbf0;
+    border: 1px solid #AF9C40;
     border-radius: 5px;
 }
 
-article h1, article h2, article h3, article h4 {
-    color: #447474;
+h1, h2, h3, h4 {
+    color: #453578;
 }
 
 img.floatright {
@@ -93,7 +96,7 @@ iframe.video-embed {
 
 footer {
     font-size: 60%;
-    color: #aaa;
+    color: #84721B;
     text-align: center;
 }
 
