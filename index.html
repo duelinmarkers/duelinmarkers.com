@@ -1,111 +1,50 @@
-<html>
-  <head>
-    <title>John Hume, duelinmarkers.com</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="http://openfontlibrary.org/face/carlito"/>
-    <link rel="stylesheet" type="text/css" href="main.css">
-  </head>
-  <body>
-    <header>
-      <h1>John Hume</h1>
-      <h2>duelin markers</h2>
-    </header>
-    <div class="main">
-      <article>
-        <h3>My rust-study Repo</h3>
-        <p>
-          I've been learning <a href="http://www.rust-lang.org/">Rust</a> recently.
-          You can see <a href="https://github.com/duelinmarkers/rust-study"
-                         >my Rust sandbox on GitHub</a>.
-          In addition to the tutorial
-          <a href="https://github.com/duelinmarkers/rust-study/tree/master/guessing_game"
-             >guessing game</a>, I've implemented
-          <a href="https://github.com/duelinmarkers/rust-study/tree/master/decimal"
-             >a decimal number type</a> and the
-          <a href="https://github.com/duelinmarkers/rust-study/tree/master/luhn-check"
-             >Luhn Algorithm for validating credit card numbers</a>.
-        </p>
-        <p>
-          If you know Rust better than I do, I'd love feedback on any of that code.
-        </p>
-      </article>
-      <article>
-        <h3>My Clojure/West 2015 Presentation: The Life of a Clojure Expression</h3>
-        <p>
-          I intend to eventually produce a written version of this presentation,
-          but haven't gotten around to it yet. For now, you can watch the video
-          and look at <a href="https://github.com/duelinmarkers/life-of-a-clojure-expression/">the source on GitHub</a>.
-        </p>
-        <iframe class="video-embed" width="560" height="315"
-                src="https://www.youtube.com/embed/6DaBmz_6y0s"
-                frameborder="0" allowfullscreen></iframe>
-      </article>
-      <article>
-        <h3>Movember 2014 was fun!</h3>
-        <p>
-          Please <a href="http://mobro.co/hume">support</a> prostate and testicular cancer research
-          and mental health programs
-          and look at funny pictures of me at
-          <a href="http://mobro.co/hume">mobro.co/hume</a>!
-        </p>
-      </article>
-      <article>
-        <img class="floatright" src="http://www.gravatar.com/avatar/8b54a98526ff7a437ec604aa471deba7?s=150">
-        <h3>About Me</h3>
-        <p>
-          I'm a professional software developer and hobbyist musician living in Austin, TX
-          with my lovely, talented <a href="http://pilateswithkatrina.com/">wife</a>
-          and two adorable, rambunctious dogs.
-        </p>
-        <ul>
-          <li>
-            I play drums in the band
-            <a href="http://twodaysuitcase.com/">Two-Day Suitcase</a>.
-          </li>
-          <li>
-            I work for <a href="http://drw.com/">DRW</a>;
-            previously for <a href="http://intentmedia.com/">Intent Media</a>,
-            <a href="http://thoughtworks.com/">ThoughtWorks</a>,
-            <a href="http://www.nlg.com/">National Leisure Group</a>,
-            <a href="http://www.cruiseone.com/">CruiseOne</a>.
-          </li>
-          <li>
-            I used to blog at
-            <a href="http://elhumidor.blogspot.com/">elhumidor.blogspot.com</a>
-            but gave up on Blogger permanently after losing a significant amount of work
-            to badly implemented sync in their Android app.
-          </li>
-          <li>
-            You can find me on
-            <a href="http://twitter.com/duelinmarkers">Twitter</a>,
-            <a href="http://github.com/duelinmarkers">GitHub</a>,
-            <a href="https://www.flickr.com/photos/duelin_markers">Flickr</a>,
-            etc.
-          <li>
-            You can encrypt a message to me using
-            <a href="http://keybase.io/duelinmarkers">my GPG key</a>
-            (fingerprint D0C8 9C93 956C 3726 B402  5ED3 7C52 19A2 B058 E31C).
-          </li>
-        </ul>
-      </article>
-    </div>
-
-    <div class="rightsidebar">
-      <h3>Tweets and Retweets</h3>
-      <a class="twitter-timeline"  href="https://twitter.com/duelinmarkers"
-         data-widget-id="640205856273920000" data-chrome="noborders"
-         >Tweets by @duelinmarkers</a>
-
-      <h3>I lol'd</h3>
-      <a class="twitter-timeline"  href="https://twitter.com/duelinmarkers/favorites"
-         data-widget-id="640207413925117952" data-chrome="noborders"
-         >Favorite Tweets by @duelinmarkers</a>
-    </div>
-
-    <footer>
-      Copyright &copy; 2015 John D. Hume
-    </footer>
-
-    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-  </body>
-</html>
+---
+---
+{% for post in site.posts %}
+<article>
+  <h3>
+    <a href="{{ post.url }}">{{ post.title }}</a>
+  </h3>
+  {{ post.excerpt }}
+  <a href="{{ post.url }}">more...</a>
+</article>
+{% endfor %}
+<article>
+  <img class="floatright" src="http://www.gravatar.com/avatar/8b54a98526ff7a437ec604aa471deba7?s=150">
+  <h3>About Me</h3>
+  <p>
+    I'm a professional software developer and hobbyist musician living in Austin, TX
+    with my lovely, talented <a href="http://pilateswithkatrina.com/">wife</a>
+    and two adorable, rambunctious dogs.
+  </p>
+  <ul>
+    <li>
+      I play drums in the band
+      <a href="http://twodaysuitcase.com/">Two-Day Suitcase</a>.
+    </li>
+    <li>
+      I work for <a href="http://drw.com/">DRW</a>;
+      previously for <a href="http://intentmedia.com/">Intent Media</a>,
+      <a href="http://thoughtworks.com/">ThoughtWorks</a>,
+      <a href="http://www.nlg.com/">National Leisure Group</a>,
+      <a href="http://www.cruiseone.com/">CruiseOne</a>.
+    </li>
+    <li>
+      I used to blog at
+      <a href="http://elhumidor.blogspot.com/">elhumidor.blogspot.com</a>
+      but gave up on Blogger permanently after losing a significant amount of work
+      to badly implemented sync in their Android app.
+    </li>
+    <li>
+      You can find me on
+      <a href="http://twitter.com/duelinmarkers">Twitter</a>,
+      <a href="http://github.com/duelinmarkers">GitHub</a>,
+      <a href="https://www.flickr.com/photos/duelin_markers">Flickr</a>,
+      etc.
+    <li>
+      You can encrypt a message to me using
+      <a href="http://keybase.io/duelinmarkers">my GPG key</a>
+      (fingerprint D0C8 9C93 956C 3726 B402  5ED3 7C52 19A2 B058 E31C).
+    </li>
+  </ul>
+</article>
