@@ -93,6 +93,11 @@ iframe.video-embed {
     max-width: 100%;
 }
 
+.highlight { /* code */
+    line-height: 100%;
+    padding: 0 1em;
+}
+
 footer {
     font-size: 60%;
     color: #84721B;
