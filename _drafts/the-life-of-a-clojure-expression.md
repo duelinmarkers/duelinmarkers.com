@@ -4,7 +4,7 @@ title: 'The Life of a Clojure Expression: A Quick Tour of Clojure Internals'
 
 This is a written version of
 [my Clojure/West 2015 presentation]({% post_url 2015-04-22-my-clojurewest-presentation %}),
-for people like me, who'd rather read than watch a video.
+for those who'd rather read than watch a video.
 
 This is basically a code walkthrough of a thin slice of [Clojure](http://clojure.org/)'s
 reader and compiler.
