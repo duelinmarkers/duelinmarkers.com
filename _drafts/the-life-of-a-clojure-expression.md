@@ -17,7 +17,7 @@ comfortable with the JVM to warm up to Clojure.
 Overview
 --------
 
-At a high level, we'll be looking at the "R" and "E" in "REPL." Here's how it breaks down.
+At a high level, we'll be looking at the "R" and "E" in "REPL."
 
 - `clojure.core/read` and `clojure.lang.LispReader#read` [&darr;](#read),
 - `clojure.core/eval` and `clojure.lang.Compiler#eval` [&darr;](#eval),
@@ -403,7 +403,7 @@ JVM bytecode is emitted using a repackaged copy of the
 
 *[ASM]: According to the ASM user guide, "the ASM name does not mean anything: it is just a reference to the __asm__ keyword in C, which allows some functions to be implemented in assembly language."
 
-The goal for a map literal is to emit a static call to either `RT.mapUniqueKeys(Object[])`,
+A map literal compiles to a static call to either `RT.mapUniqueKeys(Object[])`,
 if the compiler can guarantee the keys are unique,
 or `RT.map(Object[])` if key uniqueness needs to be checked at runtime.
 `MapExpr.emit` does a bit more analysis of its keys to determine which.
