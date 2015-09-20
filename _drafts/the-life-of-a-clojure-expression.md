@@ -57,7 +57,7 @@ what gets the function compiled, because it's just too much.
 But my goal is *not* to hand-wave past any details of taking that map-literal
 from a series of characters through Java bytecode to pumping out fresh maps at runtime.
 
-We'll also discuss some variations:
+We'll also discuss some variations that can lead down very different paths.
 
 {% highlight clojure %}
 ;; a constant
