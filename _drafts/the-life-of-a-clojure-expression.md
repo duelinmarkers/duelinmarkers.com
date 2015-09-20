@@ -66,7 +66,7 @@ At a high level, we'll be looking at the "R" and "E" in "REPL." Here's how it br
   which breaks down into
   - `Compiler.analyze` [&darr;](#analyze) and
   - `Compiler$Expr.emit` [&darr;](#emit).
-- Then, *runtime*!
+- Then, *runtime*[&darr;](#runtime)!
 
 *[REPL]: Read Eval Print Loop
 
@@ -383,7 +383,11 @@ public static class MapExpr implements Expr{
 {% endhighlight %}
 
 `MapExpr` has a vector of keys and values, populated with `Expr`s representing each form.
-We end up with `keyvals` containing
+One of the "special cases" I elided above checks to see if the map is *entirely* constant
+(i.e., everything in `keyvals` is a literal), in which case `parse` returns a `ConstantExpr`
+and a fn like ours would just read a static constant value.
+
+In our case, we end up with `keyvals` containing
 a `KeywordExpr`, a `StringExpr`, another `KeywordExpr`, and a `LocalBindingExpr`.
 
 As I mentioned earlier, `FnExpr`'s `eval` calls `emit` on each `Expr` of its body
@@ -393,7 +397,13 @@ to emit bytecode for a Java class.
 Emit
 ----
 
-Here's how `MapExpr` emits bytecode.
+JVM bytecode is emitted using a repackaged copy of the
+[ASM bytecode library](http://asm.ow2.org/).
+
+The goal for a map literal is to emit a static call to either `RT.mapUniqueKeys(Object[])`,
+if the compiler can guarantee the keys are unique,
+or `RT.map(Object[])` if key uniqueness needs to be checked at runtime.
+`MapExpr.emit` does a bit more analysis of its keys to determine which.
 
 {% highlight java %}
 public static class MapExpr implements Expr{
@@ -417,4 +427,73 @@ public static class MapExpr implements Expr{
   if(ctx == C.STATEMENT) gen.pop();
  }
 }
+{% endhighlight %}
+
+The `Method` and `GeneratorAdapter` classes referred to above are ASM stuff.
+The particulars above show a tiny example of how JVM bytecode (and ASM) work.
+You emit your arguments, then your static invocation.
+Then, if this expression occurs in a "STATEMENT" context
+(i.e., it's not the last expression in a function body or `do` block),
+you emit a bytecode to discard the return value of that static invocation.
+
+If you put that bytecode emission together with my earlier hand-waving,
+we now have the equivalent of this Java class.
+
+{% highlight java %}
+public final class a_map$m
+             extends clojure.lang.AFunction {
+  public static final clojure.lang.Keyword FOO =
+    RT.keyword(null, "foo");
+  public static final clojure.lang.Keyword BAZ =
+    RT.keyword(null, "baz");
+
+  @Override
+  public Object invoke(Object arg) {
+    return RT.mapUniqueKeys(
+      new Object[] {FOO, "bar", BAZ, arg});
+  }
+}
+{% endhighlight %}
+
+Easy!
+
+
+Runtime
+-------
+
+Somewhere else, we hope, will be a call to our function. It might look like this.
+
+{% highlight clojure %}
+(m "Thanks")
+{% endhighlight %}
+
+That piece of code will run through some of the same things we've already looked at,
+as well as some things we haven't looked at, and end up as bytecode equivalent to
+this Java code.
+
+{% highlight java %}
+M_VAR               // a static constant in the calling fn's class
+  .getRawRoot()     // reads a volatile field in the clojure.lang.Var
+  .invoke("Thanks") // invokeinterface
+{% endhighlight %}
+
+All our class's invoke does is create an Object array and call `RT.mapUniqueKeys`.
+
+{% highlight java %}
+static public IPersistentMap mapUniqueKeys(Object... init){
+  if(init == null)
+    return PersistentArrayMap.EMPTY;
+  else if(init.length <= PersistentArrayMap.HASHTABLE_THRESHOLD) // 16 again
+    return new PersistentArrayMap(init);
+  return PersistentHashMap.create(init);
+}
+{% endhighlight %}
+
+We've already seen that the `PersistentArrayMap` constructor just uses the `init`
+array to back the array-map, so we've seen it all.
+
+That's it.
+
+{% highlight clojure %}
+{:foo "bar" :baz "Thanks"}
 {% endhighlight %}
