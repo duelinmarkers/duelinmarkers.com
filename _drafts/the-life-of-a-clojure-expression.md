@@ -9,7 +9,7 @@ for those who'd rather read than watch a video.
 This is basically a code walkthrough of a thin slice of [Clojure](http://clojure.org/)'s
 reader and compiler.
 These aren't things a Clojure developer needs to think about day in and day out,
-but it couldn't hurt to understand what's going on behind the scenes.
+but it can't hurt to understand what's going on behind the scenes.
 It also might help demystify the compiler enough to get some people who are already
 comfortable with the JVM to warm up to Clojure.
 
