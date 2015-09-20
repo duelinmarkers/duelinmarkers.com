@@ -14,6 +14,21 @@ It also might help demystify the compiler enough to get some people who are alre
 comfortable with the JVM to warm up to Clojure.
 
 
+Overview
+--------
+
+At a high level, we'll be looking at the "R" and "E" in "REPL." Here's how it breaks down.
+
+- `clojure.core/read` and `clojure.lang.LispReader#read` [&darr;](#read),
+- `clojure.core/eval` and `clojure.lang.Compiler#eval` [&darr;](#eval),
+  which breaks down into
+  - `Compiler.analyze` [&darr;](#analyze) and
+  - `Compiler$Expr.emit` [&darr;](#emit).
+- Then, *runtime*[&darr;](#runtime)!
+
+*[REPL]: Read Eval Print Loop
+
+
 Disclaimers
 -----------
 
@@ -55,20 +70,6 @@ We'll also discuss some variations:
 {:a 1 :b 2 :c 3 :d 4 :e 5 :f 6 :g 7 :h 8 :i v}
 {% endhighlight %}
 
-
-Overview
---------
-
-At a high level, we'll be looking at the "R" and "E" in "REPL." Here's how it breaks down.
-
-- `clojure.core/read` and `clojure.lang.LispReader#read` [&darr;](#read),
-- `clojure.core/eval` and `clojure.lang.Compiler#eval` [&darr;](#eval),
-  which breaks down into
-  - `Compiler.analyze` [&darr;](#analyze) and
-  - `Compiler$Expr.emit` [&darr;](#emit).
-- Then, *runtime*[&darr;](#runtime)!
-
-*[REPL]: Read Eval Print Loop
 
 Read
 ----
