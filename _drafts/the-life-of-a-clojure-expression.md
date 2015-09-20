@@ -401,6 +401,8 @@ Emit
 JVM bytecode is emitted using a repackaged copy of the
 [ASM bytecode library](http://asm.ow2.org/).
 
+*[ASM]: According to the ASM user guide, "the ASM name does not mean anything: it is just a reference to the __asm__ keyword in C, which allows some functions to be implemented in assembly language."
+
 The goal for a map literal is to emit a static call to either `RT.mapUniqueKeys(Object[])`,
 if the compiler can guarantee the keys are unique,
 or `RT.map(Object[])` if key uniqueness needs to be checked at runtime.
