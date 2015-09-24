@@ -50,14 +50,15 @@ Here it is:
 ;;^---- this one ---^
 {% endhighlight %}
 
-It's the map literal `{:foo "bar" :baz v}`.
-It appears in the context of a `fn`-definition, and that's important,
+It's the map literal `{:foo "bar" :baz v}`,
+appearing in the context of a `fn`-definition where `v` is an argument to the function.
+That context in a function is important,
 but at certain points I'll hand-wave past the details of
 what gets the function compiled, because it's just too much.
 But my goal is *not* to hand-wave past any details of taking that map-literal
-from a series of characters through Java bytecode to pumping out fresh maps at runtime.
+from a series of characters, through Java bytecode, to pumping out fresh maps at runtime.
 
-We'll also discuss some variations that can lead down very different paths.
+We'll also discuss some variations that can lead down different paths.
 
 {% highlight clojure %}
 ;; a constant
@@ -80,7 +81,7 @@ the same types of data structures we use all the time in idiomatic Clojure.
 
 Awkwardly, `clojure.core/read` is just a passthrough to the `LispReader` java class,
 so "the same types of data structures we use all the time in idiomatic Clojure" are created
-and manipulated in very non-idiomatic Java.
+and manipulated in non-idiomatic Java.
 
 {% highlight clojure %}
 (defn read
@@ -110,7 +111,7 @@ Not Rich Hickey.)
 So when the reader encounters an open curly brace `{` starting a new form,
 it finds `MapReader` in the `macros` array and passes the `PushbackReader` along to it
 (along with some other stuff I've elided below).
-`MapReader`, along with `___Reader` classes for other syntactic forms,
+`MapReader`, along with similar classes for other syntactic forms,
 is nested inside `LispReader`.
 
 {% highlight java %}
@@ -125,7 +126,7 @@ static class MapReader extends AFn {
 }
 {% endhighlight %}
 
-`MapReader` uses `readDelimitedList` to get everything up to the matching close curly brace
+`MapReader` uses `readDelimitedList` to read everything up to the matching close curly brace
 into an `Object` array,
 ensures it found an even number of forms,
 and creates a map using `RT.map`.
@@ -140,7 +141,7 @@ static public IPersistentMap map(Object... init){
 }
 {% endhighlight %}
 
-Since the `Object` array is small, `PersistentArrayMap.createWithCheck`.
+Since the `Object` array is small, it uses `PersistentArrayMap.createWithCheck`.
 
 {% highlight java %}
 static PersistentArrayMap createWithCheck(Object[] init){
@@ -154,7 +155,7 @@ static PersistentArrayMap createWithCheck(Object[] init){
 }
 {% endhighlight %}
 
-Ensure keys are unique and wrap a map around the array.
+Ensure keys are unique and create a `PersistentArrayMap` around the array.
 
 {% highlight java %}
 public PersistentArrayMap(Object[] init){
@@ -163,7 +164,7 @@ public PersistentArrayMap(Object[] init){
 }
 {% endhighlight %}
 
-Read is now finished! We now have the equivalent of this quoted form.
+We now have the equivalent of this quoted form.
 
 {% highlight clojure %}
 '(defn m [v] {:foo "bar" :baz v})
@@ -174,13 +175,18 @@ The map has two keyword keys, one string value, and one symbol value.
 The reader hasn't done anything to correlate the symbol `v` in the vector
 with the symbol `v` in the map.
 
-Next we get into the good stuff!
+The fact that Clojure data structures are used to represent Clojure source
+at this stage is what makes macros both powerful and easy to write.
+This is the payoff of LISP's
+[homoiconicity](https://en.wikipedia.org/wiki/Homoiconicity).
+
+So much for `read`. Next we get into the good stuff!
 
 
 Eval
 ----
 
-Again we have a handy function in `clojure.core` that turns out to be just a passthrough
+Again we have a handy function in `clojure.core` that just passes through
 to Java code.
 
 {% highlight clojure %}
@@ -188,7 +194,8 @@ to Java code.
   (clojure.lang.Compiler/eval form))
 {% endhighlight %}
 
-Before we look at the real thing, here's a pseudo-code overview of `eval`.
+Now, `clojure.lang.Compiler/eval` is a LOT to take in.
+So before we look at the real thing, here's a pseudo-code overview of `eval`.
 
 {% highlight scala %}
 eval(form) -> Object {
@@ -267,7 +274,7 @@ and that `fn` is invoked.
 I don't know why that's necessary.
 (If you do, please [let me know](http://twitter.com/duelinmarkers).)
 
-I do find it interesting to see how the compiler wraps a form in a zero-arity `fn`.
+Regardless of why, I find it interesting to see *how* the compiler wraps a form in a zero-arity `fn`.
 It could use some internal API for doing that, but it just does what you'd do in
 Clojure code, albeit awkwardly from Java code.
 Instead of analyzing the input `form`, it analyzes this:
@@ -329,7 +336,7 @@ our expression.
 
 Our outermost `def` is wrapped in a list, so off to `analyzeSeq`!
 
-{% highlight clojure %}
+{% highlight java %}
 static Expr analyzeSeq(C ctx, ISeq form, String name) {
   Object op = RT.first(form);
   /* elided nil-check, inline */
@@ -392,10 +399,16 @@ public static class MapExpr implements Expr{
 `MapExpr` has a vector of keys and values, populated with `Expr`s representing each form.
 One of the "special cases" I elided above checks to see if the map is *entirely* constant
 (i.e., everything in `keyvals` is a literal), in which case `parse` returns a `ConstantExpr`
-and a fn like ours would just read a static constant value.
+and a fn with such a map in its body would just read a static constant value rather than
+creating a fresh map on each run.
 
 In our case, we end up with `keyvals` containing
 a `KeywordExpr`, a `StringExpr`, another `KeywordExpr`, and a `LocalBindingExpr`.
+The first three are our literals.
+The `LocalBindingExpr` is the internal representation of the symbol `v` from the
+unevaluated map the reader produced.
+When the symbol was analyzed, the compiler looked at a dynamic var of in-scope locals
+and found `v`, so the `v` in the map was analyzed into a use of that local.
 
 As I mentioned earlier, `FnExpr`'s `eval` calls `emit` on each `Expr` of its body
 to emit bytecode for a Java class.
