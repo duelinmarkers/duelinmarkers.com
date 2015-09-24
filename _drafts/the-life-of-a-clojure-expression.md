@@ -95,6 +95,7 @@ Here are some highlights from `LispReader.java`.
 {% highlight java %}
 static IFn[] macros = new IFn[256];
 static {
+  ,,,
   macros['{'] = new MapReader();
   ,,,
 }
@@ -363,21 +364,26 @@ a call to `MapExpr.parse`. Here we are.
 
 {% highlight java %}
 public static class MapExpr implements Expr{
+ // Each MapExpr has a vector of keyvals.
  public final IPersistentVector keyvals;
  // ...
  static public Expr parse(C ctx, IPersistentMap form) {
   IPersistentVector keyvals = PersistentVector.EMPTY;
+  // Iterate through the entries in the unevaluated map.
   for(ISeq s = RT.seq(form); s != null; s = s.next()) {
    IMapEntry e = (IMapEntry) s.first();
+   // Analyze each key and value, adding the result to keyvals.
    Expr k = analyze(ctx, e.key());
    Expr v = analyze(ctx, e.val());
    keyvals = (IPersistentVector) keyvals.cons(k);
    keyvals = (IPersistentVector) keyvals.cons(v);
    // elided constantness, k uniqueness checks
+   ,,,
   }
   Expr ret = new MapExpr(keyvals);
   // elided special cases:
-  // metadata, non-unique keys, all constants
+  // map with metadata, non-unique keys, entirely constant maps
+  ,,,
   return ret;
  }
 }
@@ -418,9 +424,9 @@ public static class MapExpr implements Expr{
 
  public void emit(C ctx, ObjExpr objx, GeneratorAdapter gen){
   // elided: iterate through keyvals to determine:
-  boolean allKeysConstant = /* is every k instanceof LiteralExpr? */;
-  boolean allConstantKeysUnique = /* no two literal k.eval() results equal */;
-  // ...
+  boolean allKeysConstant = /* is every k instanceof LiteralExpr? */,,,;
+  boolean allConstantKeysUnique = /* no two literal k.eval() results equal */,,,;
+  ,,,
   MethodExpr.emitArgsAsArray(keyvals, objx, gen);
   if((allKeysConstant && allConstantKeysUnique)
      || (keyvals.count() <= 2))
