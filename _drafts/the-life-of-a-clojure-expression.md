@@ -529,7 +529,7 @@ null-check and length-check and go straight to creating the `PersistentArrayMap`
 What Else?
 ----------
 
-I'm just about out of material here.
+I'm just about out of material here. *I promise!*
 
 I found it interesting to discover that map-literals with
 compile-time-known-unique keys create maps with a mechanism more efficient
