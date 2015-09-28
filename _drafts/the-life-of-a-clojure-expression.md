@@ -534,14 +534,15 @@ I'm just about out of material here. *I promise!*
 I found it interesting to discover that map-literals with
 compile-time-known-unique keys create maps with a mechanism more efficient
 than any other supported means. There is no other call to `RT.mapUniqueKeys`
-in the Clojure codebase.
+in the Clojure codebase and no supported way for you get at it other than
+via a map-literal.
 
 There are other methods like that in `RT`, by the way.
 Open up clojure itself in IntelliJ or another IDE that analyzes
 a whole project, and it will tell you that `mapUniqueKeys` and several
 other methods are unused.
-It (understandably) has no idea that there are calls "hidden" in the compiler's
-`Expr#emit` implementations.
+It (understandably) has no idea that there are calls to those methods "hidden"
+in the compiler's `Expr#emit` implementations.
 
 For delving deeply into Clojure code, it's worth knowing about
 [tools.reader](https://github.com/clojure/tools.reader) and
