@@ -582,7 +582,8 @@ worked: the result of analysis is a map similar to this.
 Basically it tells you you've got a literal and leaves it at that.
 
 There is also [tools.emitter.jvm](https://github.com/clojure/tools.emitter.jvm),
-which supports a `{:debug? true}` argument to output bytecode details human-readably.
+which supports a `{:debug? true}` argument to output bytecode details (somewhat)
+human-readably.
 That comes very close to giving you exactly what we looked at above.
 Do keep in mind, though, that all of these libraries provide *alternative
 implementations* of Clojure's internals, not insight into its *actual* internals.
