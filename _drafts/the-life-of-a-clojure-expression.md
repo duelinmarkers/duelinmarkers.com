@@ -531,11 +531,16 @@ What Else?
 
 I'm just about out of material here. *I promise!*
 
+
+### Literals are Faster
+
 I found it interesting to discover that map-literals with
 compile-time-known-unique keys create maps with a mechanism more efficient
 than any other supported means. There is no other call to `RT.mapUniqueKeys`
 in the Clojure codebase and no supported way for you get at it other than
-via a map-literal.
+via a `MapExpr`. (Do note though that your macros can return maps,
+which will hit the same fast code path as a literal,
+so you can have fast map creation without actually using a map-literal in your code.)
 
 There are other methods like that in `RT`, by the way.
 Open up clojure itself in IntelliJ or another IDE that analyzes
@@ -543,6 +548,9 @@ a whole project, and it will tell you that `mapUniqueKeys` and several
 other methods are unused.
 It (understandably) has no idea that there are calls to those methods "hidden"
 in the compiler's `Expr#emit` implementations.
+
+
+### clojure.tools Stuff
 
 For delving deeply into Clojure code, it's worth knowing about
 [tools.reader](https://github.com/clojure/tools.reader) and
@@ -584,11 +592,17 @@ Basically it tells you you've got a literal and leaves it at that.
 There is also [tools.emitter.jvm](https://github.com/clojure/tools.emitter.jvm),
 which supports a `{:debug? true}` argument to output bytecode details (somewhat)
 human-readably.
-That comes very close to giving you exactly what we looked at above.
+That comes very close to giving you exactly what we looked at above,
+which is pretty awesome.
 Do keep in mind, though, that all of these libraries provide *alternative
 implementations* of Clojure's internals, not insight into its *actual* internals.
 (For example, see tools.emitter.jvm's
 [Differences from Clojure](https://github.com/clojure/tools.emitter.jvm#differences-from-clojure).)
+
+
+### javap
+
+What I used to examine compiled Clojure code was mostly `javap`, which is a great tool.
 
 
 Wrap it up already!
