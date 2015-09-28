@@ -459,20 +459,22 @@ Then, if this expression occurs in a "STATEMENT" context
 you emit a bytecode to discard the return value of that static invocation.
 
 If you put that bytecode emission together with my earlier hand-waving,
-we now have the equivalent of this Java class.
+our `fn` has now been compiled into the equivalent of this Java class
+and loaded into an in-memory classloader.
 
 {% highlight java %}
-public final class a_map$m
-             extends clojure.lang.AFunction {
-  public static final clojure.lang.Keyword FOO =
-    RT.keyword(null, "foo");
-  public static final clojure.lang.Keyword BAZ =
-    RT.keyword(null, "baz");
+import clojure.lang.AFunction;
+import clojure.lang.Keyword;
+import clojure.lang.RT;
+
+public final class a_map$m extends AFunction {
+
+  public static final Keyword FOO = RT.keyword(null, "foo");
+  public static final Keyword BAZ = RT.keyword(null, "baz");
 
   @Override
   public Object invoke(Object arg) {
-    return RT.mapUniqueKeys(
-      new Object[] {FOO, "bar", BAZ, arg});
+    return RT.mapUniqueKeys(new Object[] {FOO, "bar", BAZ, arg});
   }
 }
 {% endhighlight %}
@@ -494,6 +496,7 @@ as well as some things we haven't looked at, and end up as bytecode equivalent t
 this Java code.
 
 {% highlight java %}
+// TODO expand this to an abbreviated class def?
 M_VAR               // a static constant in the calling fn's class
   .getRawRoot()     // reads a volatile field in the clojure.lang.Var
   .invoke("Thanks") // invokeinterface
@@ -512,10 +515,93 @@ static public IPersistentMap mapUniqueKeys(Object... init){
 {% endhighlight %}
 
 We've already seen that the `PersistentArrayMap` constructor just uses the `init`
-array to back the array-map, so we've seen it all.
-
-That's it.
+array to back the array-map, so that's it. We've seen it all!
 
 {% highlight clojure %}
 {:foo "bar" :baz "Thanks"}
 {% endhighlight %}
+
+Notice that our `fn`'s call to `mapUniqueKeys` is an excellent candidate for inlining by the JVM.
+Since the `Object` array is created right there with a length of 4, it can skip the
+null-check and length-check and go straight to creating the `PersistentArrayMap`.
+
+
+What Else?
+----------
+
+I'm just about out of material here.
+
+I found it interesting to discover that map-literals with
+compile-time-known-unique keys create maps with a mechanism more efficient
+than any other supported means. There is no other call to `RT.mapUniqueKeys`
+in the Clojure codebase.
+
+There are other methods like that in `RT`, by the way.
+Open up clojure itself in IntelliJ or another IDE that analyzes
+a whole project, and it will tell you that `mapUniqueKeys` and several
+other methods are unused.
+It (understandably) has no idea that there are calls "hidden" in the compiler's
+`Expr#emit` implementations.
+
+For delving deeply into Clojure code, it's worth knowing about
+[tools.reader](https://github.com/clojure/tools.reader) and
+[tools.analyzer.jvm](https://github.com/clojure/tools.analyzer.jvm).
+Tools.analyzer basically stands in for `clojure.lang.Compiler.analyze`,
+which we discussed earlier, but instead of returning an `Expr`, it returns
+a clojure map describing the form it analyzed.
+Among other useful things, for performance-sensitive code,
+it provides visibility into what function-invocations have been
+inlined into static method calls,
+and whether values are being treated as primitives or being boxed.
+
+However, tools.analyzer didn't do me any good figuring out how a map-literal
+worked: the result of analysis is a map similar to this.
+(Some noisy details have been removed.)
+
+{% highlight clojure %}
+{:op :map
+ :children [:keys :vals]
+ :keys [{:op :const :literal? true
+         :val :foo :tag clojure.lang.Keyword :form :foo}
+        {:op :const :literal? true
+         :val :baz :tag clojure.lang.Keyword :form :baz}]
+ :vals [{:op :const :literal? true
+         :val "bar" :tag java.lang.String :form "bar"}
+        {:op :local
+         :name v__#0
+         :local :arg
+         :arg-id 0
+         :variadic? false
+         :tag java.lang.Object
+         :form v}]
+ :tag clojure.lang.PersistentArrayMap
+ :form {:foo "bar" :baz v}}
+{% endhighlight %}
+
+Basically it tells you you've got a literal and leaves it at that.
+
+There is also [tools.emitter.jvm](https://github.com/clojure/tools.emitter.jvm),
+which supports a `{:debug? true}` argument to output bytecode details human-readably.
+That comes very close to giving you exactly what we looked at above.
+Do keep in mind, though, that all of these libraries provide *alternative
+implementations* of Clojure's internals, not insight into its *actual* internals.
+(For example, see tools.emitter.jvm's
+[Differences from Clojure](https://github.com/clojure/tools.emitter.jvm#differences-from-clojure).)
+
+
+Wrap it up already!
+-------------------
+
+Ok, ok!
+
+Maybe next time something doesn't behave as you'd expect, you'll roll up your sleeves
+and dig into the internals.
+At the very least,
+hopefully you understand a little more now about how your Clojure code works
+than you did before.
+
+Thanks for reading.
+If you have questions, feel free to [hit me up on Twitter](http://twitter.com/duelinmarkers)
+or elsewhere.
+If the answer doesn't fit in 140 characters, maybe I'll write another ridiculously long
+blog post.
