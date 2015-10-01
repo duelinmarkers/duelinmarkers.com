@@ -75,12 +75,26 @@ We'll also discuss some variations that can lead down different paths.
 Read
 ----
 
-The reading process is about as boring as you'd expect, so we won't look at every detail.
-The key takeaway is that Clojure is homoiconic, so reading mostly results in instances of
-the same types of data structures we use all the time in idiomatic Clojure.
+The reading process is about consuming characters from a
+[`java.io.PushbackReader`](https://docs.oracle.com/javase/8/docs/api/java/io/PushbackReader.html)
+(i.e., a `Reader` that lets you unread characters) and producing *forms*.
+The key takeaway is that Clojure is homoiconic, so the forms it returns are instances of
+the same types of data structures we use all the time in idiomatic Clojure:
+lists, vectors, symbols, strings, etc.
+
+> ### Why a PushbackReader?
+>
+> There are several cases where the reader needs to back up.
+> One example is when it finds a `+` or `-` at the beginning of a form.
+> That could indicate the start (or entirety) of a symbol (as in `clojure.core/+`)
+> *or* it could be part of a number literal (like `-2`). After consuming a `+` or `-`,
+> it reads the next character.
+> If [it's a digit](https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html#isDigit-char-),
+> it pushes the digit character back into the `PushbackReader` and goes down the `readNumber` path.
+> (That's the same path it would have gone down if it had encountered a digit at the beginning of a form.)
 
 Awkwardly, `clojure.core/read` is just a passthrough to the `LispReader` java class,
-so "the same types of data structures we use all the time in idiomatic Clojure" are created
+so those data structures we use all the time in idiomatic Clojure are created
 and manipulated in non-idiomatic Java.
 
 {% highlight clojure %}
