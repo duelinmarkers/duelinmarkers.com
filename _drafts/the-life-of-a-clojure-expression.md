@@ -616,7 +616,8 @@ implementations* of Clojure's internals, not insight into its *actual* internals
 
 ### javap
 
-What I used to examine compiled Clojure code was mostly `javap`, which is a great tool.
+What I used to examine compiled Clojure code was `javap`, which is a great tool,
+and provides output similar to tools.emitter's debug output.
 
 
 Wrap it up already!
