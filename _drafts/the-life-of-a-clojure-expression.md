@@ -64,7 +64,7 @@ We'll also discuss some variations that can lead down different paths.
 ;; a constant
 {:foo "bar" :baz 23}
 
-;; w/ runtime-calculated k
+;; w/ a runtime-calculated key
 {v "bar" :baz 23}
 
 ;; w/ (> (count kv-pairs) 8)
