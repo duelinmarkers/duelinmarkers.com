@@ -86,23 +86,104 @@ lists, vectors, symbols, strings, etc.
 >
 > There are several cases where the reader needs to back up.
 > One example is when it finds a `+` or `-` at the beginning of a form.
-> That could indicate the start (or entirety) of a symbol (as in `clojure.core/+`)
-> *or* it could be part of a number literal (like `-2`). After consuming a `+` or `-`,
-> it reads the next character.
+> That could indicate the start (or entirety) of a referred symbol
+> (as in `+` to refer to `clojure.core/+`)
+> *or* a number literal (like `-2`).
+> After reading a `+` or `-` at the start of a form, it reads the next character.
 > If [it's a digit](https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html#isDigit-char-),
 > it pushes the digit character back into the `PushbackReader` and goes down the `readNumber` path.
 > (That's the same path it would have gone down if it had encountered a digit at the beginning of a form.)
+> Otherwise, it pushes the character back and continues down the `readToken` path.
+> "Token" in this context can be a symbol, keyword, `true`, `false`, `nil`,
+> or [something I haven't figured out](https://github.com/clojure/clojure/blob/clojure-1.8.0-alpha5/src/jvm/clojure/lang/LispReader.java#L401-L404)
+> yet.
 
-Awkwardly, `clojure.core/read` is just a passthrough to the `LispReader` java class,
+Awkwardly,
+[`clojure.core/read`](https://github.com/clojure/clojure/blob/clojure-1.8.0-alpha5/src/clj/clojure/core.clj#L3630-L3657)
+is just a passthrough to the
+[`clojure.lang.LispReader`](https://github.com/clojure/clojure/blob/clojure-1.8.0-alpha5/src/jvm/clojure/lang/LispReader.java)
+java class,
 so those data structures we use all the time in idiomatic Clojure are created
 and manipulated in non-idiomatic Java.
 
 {% highlight clojure %}
 (defn read
-  ,,, ; many boring arities elided
-  ([stream ,,,] ; stream is a java.io.PushbackReader
-   (clojure.lang.LispReader/read stream
-                                 ,,,)))
+  ([]
+   (read *in*))
+  ([stream]
+   (read stream true nil))
+  ([stream eof-error? eof-value]
+   (read stream eof-error? eof-value false))
+  ([stream eof-error? eof-value recursive?]
+   (clojure.lang.LispReader/read stream (boolean eof-error?) eof-value recursive?))
+  ([opts stream] ; Arity-2 is for the new Reader Conditionals feature.
+   (clojure.lang.LispReader/read stream opts)))
+{% endhighlight %}
+
+Let's jump straight to the `LispReader/read` overload that does the real work.
+
+{% highlight java %}
+static private Object read(PushbackReader r, ,,,) {
+    ,,, // ensure reading allowed
+    ,,, // merge {:features #{:clj}} into opts
+    try {
+        for(; ;) {
+            ,,, // return first of pendingForms if there is one.
+
+			int ch = read1(r);
+
+			while(isWhitespace(ch))
+				ch = read1(r);
+
+			if(ch == -1)
+				{
+				if(eofIsError)
+					throw Util.runtimeException("EOF while reading");
+				return eofValue;
+				}
+
+			if(returnOn != null && (returnOn.charValue() == ch)) {
+				return returnOnValue;
+			}
+
+			if(Character.isDigit(ch))
+				{
+				Object n = readNumber(r, (char) ch);
+				return n;
+				}
+
+			IFn macroFn = getMacro(ch);
+			if(macroFn != null)
+				{
+				Object ret = macroFn.invoke(r, (char) ch, opts, pendingForms);
+				//no op macros return the reader
+				if(ret == r)
+					continue;
+				return ret;
+				}
+
+			if(ch == '+' || ch == '-')
+				{
+				int ch2 = read1(r);
+				if(Character.isDigit(ch2))
+					{
+					unread(r, ch2);
+					Object n = readNumber(r, (char) ch);
+					return n;
+					}
+				unread(r, ch2);
+				}
+
+			String token = readToken(r, (char) ch);
+			return interpretToken(token);
+        }
+    } catch(Exception e) {
+		if(isRecursive || !(r instanceof LineNumberingPushbackReader))
+			throw Util.sneakyThrow(e);
+		LineNumberingPushbackReader rdr = (LineNumberingPushbackReader) r;
+		throw new ReaderException(rdr.getLineNumber(), rdr.getColumnNumber(), e);
+    }
+}
 {% endhighlight %}
 
 Here are some highlights from `LispReader.java`.
