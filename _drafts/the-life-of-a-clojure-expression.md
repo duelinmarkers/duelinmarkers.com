@@ -5,12 +5,13 @@ title: 'The Life of a Clojure Expression: A Quick Tour of Clojure Internals'
 This is a written version of
 [my Clojure/West 2015 presentation]({% post_url 2015-04-22-my-clojurewest-presentation %}),
 for those who'd rather read than watch a video.
+It goes into more detail and has some updates for Clojure 1.8.
 
 This is basically a code walkthrough of a thin slice of [Clojure](http://clojure.org/)'s
 reader and compiler.
-These aren't things a Clojure developer needs to think about day in and day out,
-but it can't hurt to understand what's going on behind the scenes.
-It also might help demystify the compiler enough to get some people who are already
+These aren't things a Clojure developer necessarily thinks about day in and day out,
+but it often helps to understand what's going on behind the scenes.
+It may demystify Clojure's internals enough to get some people who are already
 comfortable with the JVM to warm up to Clojure.
 
 
@@ -24,7 +25,7 @@ At a high level, we'll be looking at the "R" and "E" in "REPL."
   which breaks down into
   - `Compiler.analyze` [&darr;](#analyze) and
   - `Compiler$Expr.emit` [&darr;](#emit).
-- Then, *runtime*[&darr;](#runtime)!
+- Then, a look at the results at *runtime*[&darr;](#runtime)!
 
 *[REPL]: Read Eval Print Loop
 
@@ -64,10 +65,10 @@ We'll also discuss some variations that can lead down different paths.
 ;; a constant
 {:foo "bar" :baz 23}
 
-;; w/ a runtime-calculated key
+;; a map w/ a runtime-calculated key
 {v "bar" :baz 23}
 
-;; w/ (> (count kv-pairs) 8)
+;; a map w/ more than 8 kv pairs
 {:a 1 :b 2 :c 3 :d 4 :e 5 :f 6 :g 7 :h 8 :i v}
 {% endhighlight %}
 
@@ -116,104 +117,115 @@ and manipulated in non-idiomatic Java.
    (read stream eof-error? eof-value false))
   ([stream eof-error? eof-value recursive?]
    (clojure.lang.LispReader/read stream (boolean eof-error?) eof-value recursive?))
-  ([opts stream] ; Arity-2 is for the new Reader Conditionals feature.
+  ([opts stream] ; Arity-2 is for Reader Conditionals, new in 1.8.
    (clojure.lang.LispReader/read stream opts)))
 {% endhighlight %}
 
-Let's jump straight to the `LispReader/read` overload that does the real work.
+Let's jump straight to
+[the `LispReader/read` overload that does the real work](https://github.com/clojure/clojure/blob/clojure-1.8.0/src/jvm/clojure/lang/LispReader.java#L223-L294).
 
 {% highlight java %}
 static private Object read(PushbackReader r, ,,,) {
-    ,,, // ensure reading allowed
-    ,,, // merge {:features #{:clj}} into opts
-    try {
-        for(; ;) {
-            ,,, // return first of pendingForms if there is one.
+  ,,, // Check *read-eval* to ensure reading allowed.
+  ,,, // Merge {:features #{:clj}} into opts for Reader Conditionals.
+  try {
+    for(; ;) {
+      ,,, // Some pendingForms stuff for spliced Reader Conditionals.
 
-			int ch = read1(r);
+      int ch = read1(r); // Read the next character,
+      while(isWhitespace(ch)) ch = read1(r); // skipping whitespace.
 
-			while(isWhitespace(ch))
-				ch = read1(r);
+      if(ch == -1) ,,,; // Fail when nothing to read.
 
-			if(ch == -1)
-				{
-				if(eofIsError)
-					throw Util.runtimeException("EOF while reading");
-				return eofValue;
-				}
+      if(returnOn != null && (returnOn.charValue() == ch)) {
+        // Stop on closing brace for some internal callers.
+        return returnOnValue;
+      }
 
-			if(returnOn != null && (returnOn.charValue() == ch)) {
-				return returnOnValue;
-			}
+      if(Character.isDigit(ch))
+        return readNumber(r, (char) ch);
 
-			if(Character.isDigit(ch))
-				{
-				Object n = readNumber(r, (char) ch);
-				return n;
-				}
+      IFn macroFn = getMacro(ch); // <-- Important thing.
+      if(macroFn != null) {
+        Object ret = macroFn.invoke(r, (char) ch, opts, ,,,);
+        if(ret == r) //a macro can return the reader to signal "ignore me."
+          continue;
+        return ret;
+      }
 
-			IFn macroFn = getMacro(ch);
-			if(macroFn != null)
-				{
-				Object ret = macroFn.invoke(r, (char) ch, opts, pendingForms);
-				//no op macros return the reader
-				if(ret == r)
-					continue;
-				return ret;
-				}
-
-			if(ch == '+' || ch == '-')
-				{
-				int ch2 = read1(r);
-				if(Character.isDigit(ch2))
-					{
-					unread(r, ch2);
-					Object n = readNumber(r, (char) ch);
-					return n;
-					}
-				unread(r, ch2);
-				}
-
-			String token = readToken(r, (char) ch);
-			return interpretToken(token);
+      if(ch == '+' || ch == '-') { // See earlier note on PushbackReader.
+        int ch2 = read1(r);
+        if(Character.isDigit(ch2)) {
+          unread(r, ch2);
+          Object n = readNumber(r, (char) ch);
+          return n;
         }
-    } catch(Exception e) {
-		if(isRecursive || !(r instanceof LineNumberingPushbackReader))
-			throw Util.sneakyThrow(e);
-		LineNumberingPushbackReader rdr = (LineNumberingPushbackReader) r;
-		throw new ReaderException(rdr.getLineNumber(), rdr.getColumnNumber(), e);
+        unread(r, ch2);
+      }
+
+      String token = readToken(r, (char) ch);
+      return interpretToken(token);
     }
+  } catch(Exception e) {
+    ,,, // Propagate exceptions.
+  }
 }
 {% endhighlight %}
 
-Here are some highlights from `LispReader.java`.
+An important part in the middle there starts with getting an instance of `IFn`, Clojure's
+function interface, from a call to `getMacro(ch)`. If there's a `macroFn` for
+the given char, that function handles reading the form opened by the character.
+The characters that have macro functions are all syntactically special:
+`"`, `;`, `'`, `@`, `^`, `` ` ``, `~`, `(`, `[`, `{`, `\`, `%`, and `#`
+(plus `)`, `]`, and `}`, to fail cleanly on unmatched delimiters).
 
-{% highlight java %}
-static IFn[] macros = new IFn[256];
-static {
-  ,,,
-  macros['{'] = new MapReader();
-  ,,,
-}
+Don't get these reader "macros" confused with Clojure macros (as in `defmacro`).
+We'll get to "true" macros later, when we talk about the compiler's analyze phase.
+
+The reader "macro" `IFn`s are implemented with Java classes, not Clojure functions.
+The `(` that opens our `defn` maps to an `IFn` implemented by a `ListReader` class.
+The `{` that opens our map-literal expression maps to an `IFn` implemented by a `MapReader` class.
+These `___Reader` classes are all nested inside LispReader.
+
+> ### Who needs a `Map<Character,IFn>`? Not Rich Hickey.
+>
+> LispReader wants to look up macro functions by their signifying characters.
+> An idiomatic Java implementation might use a `Map<Character,IFn>` for that.
+> But since the set of interesting characters is limited,
+> and chars are 16-bit, unsigned integers, instead of a Map,
+> LispReader uses an array of `IFn`, using the signifying characters as indices.
+> This makes the setup very readable.
+>
+> {% highlight java %}
+macros['"'] = new StringReader();
+macros[';'] = new CommentReader();
+macros['\''] = new WrappingReader(QUOTE);
+macros['@'] = new WrappingReader(DEREF);
+macros['^'] = new MetaReader();
+macros['`'] = new SyntaxQuoteReader();
+macros['~'] = new UnquoteReader();
+macros['('] = new ListReader();
+,,, // and so on.
 {% endhighlight %}
+>
+> I thought that was pretty clever.
 
-First off we have a static array of `IFn`s&mdash;the Java interface representing Clojure
-functions&mdash;indexed by the character indicating the type of data they read.
-(I thought that was pretty clever.
-Who needs a `Map<Character,IFn>` when you can just use `char`s as indices in an `IFn` array?
-Not Rich Hickey.)
+The ListReader recursively calls up into that same static `read` method above
+to read each form until the closing `)`. We won't look at that code in detail.
+The first thing it reads is the symbol `defn`,
+which is a just symbol like any other as far as the reader is concerned.
+That's followed by the symbol `m`, then a vector, read with a `VectorReader`,
+containing the symbol `v`, then we get to our map-literal expression.
 
-So when the reader encounters an open curly brace `{` starting a new form,
-it finds `MapReader` in the `macros` array and passes the `PushbackReader` along to it
+Given the `{` that opens the expression, `getMacro` returns a `MapReader`
+and passes the `PushbackReader` along to it
 (along with some other stuff I've elided below).
-`MapReader`, along with similar classes for other syntactic forms,
-is nested inside `LispReader`.
 
 {% highlight java %}
 static class MapReader extends AFn {
   public Object invoke(Object reader, ,,,) {
     PushbackReader r = (PushbackReader) reader;
-    Object[] a = readDelimitedList('}', r, ,,,);
+    Object[] a = readDelimitedList('}', r, ,,,).toArray();
     if((a.length & 1) == 1)
       throw Util.runtimeException("Odd # of forms!");
     return RT.map(a);
@@ -221,9 +233,9 @@ static class MapReader extends AFn {
 }
 {% endhighlight %}
 
-`MapReader` uses `readDelimitedList` to read everything up to the matching close curly brace
+MapReader uses `readDelimitedList` to read everything up to the matching brace
 into an `Object` array,
-ensures it found an even number of forms,
+ensures it found an even number of forms (alternating keys and values),
 and creates a map using `RT.map`.
 
 {% highlight java %}
@@ -250,7 +262,7 @@ static PersistentArrayMap createWithCheck(Object[] init){
 }
 {% endhighlight %}
 
-Ensure keys are unique and create a `PersistentArrayMap` around the array.
+That ensures keys are unique and creates a `PersistentArrayMap` around the array.
 
 {% highlight java %}
 public PersistentArrayMap(Object[] init){
@@ -265,7 +277,7 @@ We now have the equivalent of this quoted form.
 '(defn m [v] {:foo "bar" :baz v})
 {% endhighlight %}
 
-It's a list with two symbols followed by a one-element vector followed by a map.
+It's a list that starts with two symbols, followed by a one-element vector, followed by a map.
 The map has two keyword keys, one string value, and one symbol value.
 The reader hasn't done anything to correlate the symbol `v` in the vector
 with the symbol `v` in the map.
@@ -289,18 +301,18 @@ to Java code.
   (clojure.lang.Compiler/eval form))
 {% endhighlight %}
 
-Now, `clojure.lang.Compiler/eval` is a LOT to take in.
-So before we look at the real thing, here's a pseudo-code overview of `eval`.
+Now, `clojure.lang.Compiler/eval` is a lot to take in, even with a lot of detail stripped out.
+So before we look at the real thing, here's an idealized version of `eval`.
 
-{% highlight scala %}
-eval(form) -> Object {
-  form = macroexpand(form);
-  Expr expr = analyze(form);
-  return expr.eval()
+{% highlight java %}
+Object eval(Object form) {
+  Object expandedForm = macroexpand(form);
+  Expr expr = analyze(expandedForm);
+  return expr.eval();
 }
 {% endhighlight %}
 
-It takes in a form, like the reader just gave us, and returns an `Object` result.
+It takes in a code form, like the reader just gave us, and returns an `Object` result.
 It gets from form to object by
 
 - macroexpanding the form,
@@ -316,7 +328,7 @@ interface Expr {
   void emit(C ctx, ObjExpr objx, GeneratorAdapter gen);
   boolean hasJavaClass();
   Class getJavaClass();
-  // And often there's this static fn:
+  // And often there's this static factory fn:
   //   static Expr parse(C ctx, CORRECT_TYPE form);
   // For most special forms, there's an IParser:
   //   interface IParser{
@@ -327,7 +339,8 @@ interface Expr {
 
 With a lot of detail elided, here's the "real" eval method.
 Some lines have intentionally been left super-long, because you can just read
-the comments I've inserted at the beginning. But if you're curious, you can scroll right.
+the comments I've inserted at the beginning. But if you're curious, you can scroll right
+(or [read the real thing](https://github.com/clojure/clojure/blob/clojure-1.8.0/src/jvm/clojure/lang/Compiler.java#L6893-L6946)).
 
 {% highlight java %}
 public static Object eval(Object form, boolean _) {
@@ -357,7 +370,7 @@ public static Object eval(Object form, boolean _) {
 First, forms will be macroexpanded. If they're not macro invocations,
 the `macroexpand` call will just return the input form.
 
-Next, if the form is a `(do...)` it's "unrolled" and each form of its body is `eval`'d as if
+Next, if the form is a `(do...)` it's "unrolled": each form of its body is `eval`'d as if
 it were a top-level form, and the result of `eval`ing the last form is returned.
 That's important for macros to be able to return `do` forms where some forms create
 global state (e.g., `def`ing a var)
@@ -426,18 +439,19 @@ static Expr analyze(C ctx, Object form, String name) {
 {% endhighlight %}
 
 Depending on the type of our form, we dispatch to some type-specific analysis.
-All the branches I haven't edited out above are branches needed to fully analyze
+All the branches I've included above are branches needed to fully analyze
 our expression.
 
-Our outermost `def` is wrapped in a list, so off to `analyzeSeq`!
+Our outermost `def` is wrapped in a list, so off to [`analyzeSeq`](https://github.com/clojure/clojure/blob/clojure-1.8.0/src/jvm/clojure/lang/Compiler.java#L6843-L6883)!
 
 {% highlight java %}
 static Expr analyzeSeq(C ctx, ISeq form, String name) {
+  ,,, /* elided line/column stuff */
   Object op = RT.first(form);
-  /* elided nil-check, inline */
+  ,,, /* elided nil-check, inline stuff */
+  IParser p;
   if(op.equals(FN))
     return FnExpr.parse(ctx, form, name); // our fn
-  IParser p;
   else if((p = (IParser) specials.valAt(op)) != null)
     return p.parse(ctx, form); // our def
   else
@@ -462,13 +476,14 @@ each `Expr` of which gets analyzed and emitted. Trust me.
 ![Hand-waving](/images/hand-waving-fallon.gif)
 
 Our function body is a map. You can see in `analyze` above that will mean
-a call to `MapExpr.parse`. Here we are.
+a call to [`MapExpr.parse`](https://github.com/clojure/clojure/blob/clojure-1.8.0/src/jvm/clojure/lang/Compiler.java#L3062-L3113).
+Here we are.
 
 {% highlight java %}
 public static class MapExpr implements Expr{
  // Each MapExpr has a vector of keyvals.
  public final IPersistentVector keyvals;
- // ...
+ ,,, // elided everything but parse.
  static public Expr parse(C ctx, IPersistentMap form) {
   IPersistentVector keyvals = PersistentVector.EMPTY;
   // Iterate through the entries in the unevaluated map.
@@ -493,17 +508,18 @@ public static class MapExpr implements Expr{
 
 `MapExpr` has a vector of keys and values, populated with `Expr`s representing each form.
 One of the "special cases" I elided above checks to see if the map is *entirely* constant
-(i.e., everything in `keyvals` is a literal), in which case `parse` returns a `ConstantExpr`
-and a fn with such a map in its body would just read a static constant value rather than
-creating a fresh map on each run.
+(i.e., every key and val is a literal), in which case `parse` returns a `ConstantExpr`,
+and a fn with such a map as its body would just return a static constant value rather than
+creating a fresh map each time it's invoked.
 
 In our case, we end up with `keyvals` containing
 a `KeywordExpr`, a `StringExpr`, another `KeywordExpr`, and a `LocalBindingExpr`.
 The first three are our literals.
 The `LocalBindingExpr` is the internal representation of the symbol `v` from the
 unevaluated map the reader produced.
-When the symbol was analyzed, the compiler looked at a dynamic var of in-scope locals
-and found `v`, so the `v` in the map was analyzed into a use of that local.
+When [the symbol was analyzed](https://github.com/clojure/clojure/blob/clojure-1.8.0/src/jvm/clojure/lang/Compiler.java#L7045-L7049),
+the compiler looked at the in-scope locals
+and found the `v` from our fn's arglist, so the `v` in the map was analyzed into a use of that local.
 
 As I mentioned earlier, `FnExpr`'s `eval` calls `emit` on each `Expr` of its body
 to emit bytecode for a Java class.
@@ -567,14 +583,22 @@ public final class a_map$m extends AFunction {
   public static final Keyword FOO = RT.keyword(null, "foo");
   public static final Keyword BAZ = RT.keyword(null, "baz");
 
+  public static Object invokeStatic(Object arg) {
+    return RT.mapUniqueKeys(new Object[] {FOO, "bar", BAZ, arg});
+  }
+
   @Override
   public Object invoke(Object arg) {
-    return RT.mapUniqueKeys(new Object[] {FOO, "bar", BAZ, arg});
+    return invokeStatic(arg);
   }
 }
 {% endhighlight %}
 
 Easy!
+
+Note that `invokeStatic` is new since support for
+[direct linking was added in Clojure 1.8](https://github.com/clojure/clojure/blob/master/changes.md#11-direct-linking).
+In previous releases, only the `invoke` instance method would have been generated.
 
 
 Runtime
@@ -586,18 +610,25 @@ Somewhere else, we hope, will be a call to our function. It might look like this
 (m "Thanks")
 {% endhighlight %}
 
-That piece of code will run through some of the same things we've already looked at,
-as well as some things we haven't looked at, and end up as bytecode equivalent to
-this Java code.
+That piece of code will run through read and eval and,
+assuming direct linking is disabled or you're on a version of Clojure earlier than 1.8,
+compile to bytecode equivalent to this Java expression.
 
 {% highlight java %}
-// TODO expand this to an abbreviated class def?
 M_VAR               // a static constant in the calling fn's class
   .getRawRoot()     // reads a volatile field in the clojure.lang.Var
   .invoke("Thanks") // invokeinterface
 {% endhighlight %}
 
-All our class's invoke does is create an Object array and call `RT.mapUniqueKeys`.
+If direct linking is enabled, it will instead compile to the equivalent of this Java.
+
+{% highlight java %}
+a_map$m.invokeStatic("Thanks")
+{% endhighlight %}
+
+Either way, it ends up in `m.invokeStatic`, which, as shown above,
+creates an Object array and calls `RT.mapUniqueKeys`,
+which is the last piece of code we have to look at!
 
 {% highlight java %}
 static public IPersistentMap mapUniqueKeys(Object... init){
@@ -609,15 +640,15 @@ static public IPersistentMap mapUniqueKeys(Object... init){
 }
 {% endhighlight %}
 
-We've already seen that the `PersistentArrayMap` constructor just uses the `init`
-array to back the array-map, so that's it. We've seen it all!
+As we've already seen, the `PersistentArrayMap` constructor just uses the `init`
+array to back the array-map.
 
 {% highlight clojure %}
 {:foo "bar" :baz "Thanks"}
 {% endhighlight %}
 
 Notice that our `fn`'s call to `mapUniqueKeys` is an excellent candidate for inlining by the JVM.
-Since the `Object` array is created right there with a length of 4, it can skip the
+Since the Object array is created right there with a length of 4, it can skip the
 null-check and length-check and go straight to creating the `PersistentArrayMap`.
 
 
@@ -629,76 +660,18 @@ I'm just about out of material here. *I promise!*
 
 ### Literals are Faster
 
-I found it interesting to discover that map-literals with
-compile-time-known-unique keys create maps with a mechanism more efficient
+I found it interesting to discover that map-literals with keys known to be
+unique at compile time create maps with a mechanism more efficient
 than any other supported means. There is no other call to `RT.mapUniqueKeys`
 in the Clojure codebase and no supported way for you get at it other than
-via a `MapExpr`. (Do note though that your macros can return maps,
-which will hit the same fast code path as a literal,
-so you can have fast map creation without actually using a map-literal in your code.)
+via a `MapExpr`.
 
-There are other methods like that in `RT`, by the way.
-Open up clojure itself in IntelliJ or another IDE that analyzes
-a whole project, and it will tell you that `mapUniqueKeys` and several
-other methods are unused.
-It (understandably) has no idea that there are calls to those methods "hidden"
-in the compiler's `Expr#emit` implementations.
-
-
-### clojure.tools Stuff
-
-For delving deeply into Clojure code, it's worth knowing about
-[tools.reader](https://github.com/clojure/tools.reader) and
-[tools.analyzer.jvm](https://github.com/clojure/tools.analyzer.jvm).
-Tools.analyzer basically stands in for `clojure.lang.Compiler.analyze`,
-which we discussed earlier, but instead of returning an `Expr`, it returns
-a clojure map describing the form it analyzed.
-Among other useful things, for performance-sensitive code,
-it provides visibility into what function-invocations have been
-inlined into static method calls,
-and whether values are being treated as primitives or being boxed.
-
-However, tools.analyzer didn't do me any good figuring out how a map-literal
-worked: the result of analysis is a map similar to this.
-(Some noisy details have been removed.)
-
-{% highlight clojure %}
-{:op :map
- :children [:keys :vals]
- :keys [{:op :const :literal? true
-         :val :foo :tag clojure.lang.Keyword :form :foo}
-        {:op :const :literal? true
-         :val :baz :tag clojure.lang.Keyword :form :baz}]
- :vals [{:op :const :literal? true
-         :val "bar" :tag java.lang.String :form "bar"}
-        {:op :local
-         :name v__#0
-         :local :arg
-         :arg-id 0
-         :variadic? false
-         :tag java.lang.Object
-         :form v}]
- :tag clojure.lang.PersistentArrayMap
- :form {:foo "bar" :baz v}}
-{% endhighlight %}
-
-Basically it tells you you've got a literal and leaves it at that.
-
-There is also [tools.emitter.jvm](https://github.com/clojure/tools.emitter.jvm),
-which supports a `{:debug? true}` argument to output bytecode details (somewhat)
-human-readably.
-That comes very close to giving you exactly what we looked at above,
-which is pretty awesome.
-Do keep in mind, though, that all of these libraries provide *alternative
-implementations* of Clojure's internals, not insight into its *actual* internals.
-(For example, see tools.emitter.jvm's
-[Differences from Clojure](https://github.com/clojure/tools.emitter.jvm#differences-from-clojure).)
-
-
-### javap
-
-What I used to examine compiled Clojure code was `javap`, which is a great tool,
-and provides output similar to tools.emitter's debug output.
+Do note though that your macros can return maps,
+which can hit the same fast code path as a literal,
+so you can have fast map creation without actually using a map-literal.
+For example, see this optimization to
+[`jry/kvify`](https://github.com/jaycfields/jry/commit/d0a4bf16e8bf5a170ad869c13ef74b056c3694a8)
+that takes advantage of this fact.
 
 
 Wrap it up already!
@@ -706,14 +679,17 @@ Wrap it up already!
 
 Ok, ok!
 
-Maybe next time something doesn't behave as you'd expect, you'll roll up your sleeves
+Maybe next time some Clojure code doesn't behave as you'd expect, you'll roll up your sleeves
 and dig into the internals.
 At the very least,
-hopefully you understand a little more now about how your Clojure code works
-than you did before.
+hopefully you now understand a little more about how Clojure works than you did before.
 
 Thanks for reading.
 If you have questions, feel free to [hit me up on Twitter](http://twitter.com/duelinmarkers)
 or elsewhere.
 If the answer doesn't fit in 140 characters, maybe I'll write another ridiculously long
 blog post.
+
+Thanks to Steve Kim, Oliver Gugenheim, Kurt Stephens, David Alternburg, and Peter Royal
+for providing thoughtful feedback on an earlier version of this monster.
+Sorry for not fixing all the valid issues you raised.
