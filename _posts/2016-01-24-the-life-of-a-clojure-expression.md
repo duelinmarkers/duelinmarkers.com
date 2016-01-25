@@ -690,6 +690,6 @@ or elsewhere.
 If the answer doesn't fit in 140 characters, maybe I'll write another ridiculously long
 blog post.
 
-Thanks to Steve Kim, Oliver Gugenheim, Kurt Stephens, David Alternburg, and Peter Royal
+Thanks to Steve Kim, Oliver Gugenheim, Kurt Stephens, David Alternburg, and [Peter Royal](http://fotap.org/~osi/)
 for providing thoughtful feedback on an earlier version of this monster.
 Sorry for not fixing all the valid issues you raised.
