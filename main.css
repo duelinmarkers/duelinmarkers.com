@@ -99,7 +99,7 @@ code { /* inline */
     border: 1px solid #D8C773;
 }
 
-.highlight { /* code blocks */
+div.highlight { /* code blocks */
     border: 1px solid #D8C773;
     line-height: 100%;
     padding: 0 .5em;
