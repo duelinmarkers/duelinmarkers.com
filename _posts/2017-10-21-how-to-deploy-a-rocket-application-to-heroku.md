@@ -27,7 +27,8 @@ I created the Heroku application, which I named `todo-backend-rocket-rust`,
 using [this Rust buildpack](https://github.com/emk/heroku-buildpack-rust).
 
 ```
-heroku create todo-backend-rocket-rust --buildpack https://github.com/emk/heroku-buildpack-rust.git
+heroku create todo-backend-rocket-rust \
+  --buildpack https://github.com/emk/heroku-buildpack-rust.git
 ```
 
 That command automatically added a git remote called `heroku`.
