@@ -1,5 +1,5 @@
 ---
-title: Old Track: 'D This Off' (c. 2002)
+title: 'Old Track: \'D This Off\' (c. 2002)'
 ---
 
 Here's a piece of music I created sometime around 2002. The distorted 808 bass drum is a bit much right from the start, but I like some of the string harmonies and the synth parts that come in later. The layering gets too crowded eventually.
