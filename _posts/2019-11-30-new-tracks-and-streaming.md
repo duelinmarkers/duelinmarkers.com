@@ -1,5 +1,6 @@
 ---
 title: "New Tracks and Streaming"
+excerpt_image: /images/cable_heart_500x500.png
 ---
 
 I've now got a micro-mini-album available on all major streaming platforms (and a few I'd never heard of): 
