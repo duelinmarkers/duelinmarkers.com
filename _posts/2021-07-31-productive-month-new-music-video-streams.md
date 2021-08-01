@@ -1,5 +1,5 @@
 ---
-title: A Productive Month: New Music, Video, and Streams
+title: "A Productive Month: New Music, Video, and Streams"
 ---
 
 It's been a productive month for music.
