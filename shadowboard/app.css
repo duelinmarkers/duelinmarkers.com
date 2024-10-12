@@ -1,0 +1,259 @@
+body {
+  touch-action: manipulation;
+  margin: 0.5rem;
+  background: #222;
+  color: #ddd;
+  font-family: sans-serif;
+}
+
+#main {
+  width: 100%;
+  height: 94vh;
+  margin: 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+}
+
+button {
+  min-height: 3rem;
+  min-width: 1rem;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+  color: #eee;
+  background-color: #555;
+  border: 1px solid #888;
+  margin: 1px;
+}
+
+.button-row {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.button-row>button {
+  flex: 1;
+}
+
+.round-timers {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.round-timers .timer {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.round-timers .timer .button-row {
+  flex: 1;
+}
+
+.round-timers .timer .description {
+  min-width: 2em;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-around;
+}
+
+#players {
+  flex: 1;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.player {
+  flex: 1;
+  min-width: 10%;
+  max-width: 40%;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  border: 1px solid #888;
+  border-radius: 4px;
+  color: #eee;
+  background-color: #444;
+  padding: 1rem;
+}
+
+.player input {
+  font-size: 1em;
+  font-weight: bold;
+  font-family: serif;
+  width: 98%;
+}
+
+.player.current-turn {
+  border-color: white;
+  color: #fff;
+  background-color: #4a4a4a;
+}
+
+.player .name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-family: serif;
+}
+
+.player .primary-toggles button {
+  font-size: large;
+}
+
+.player.focusing button.focusing {
+  background-color: #969;
+  border-color: #e9e;
+  box-shadow: 0 0 6px 3px #969;
+  z-index: 20;
+}
+
+.player.light-bearer button.light-bearer {
+  background-color: #fff;
+  border-color: #feb;
+  box-shadow: 0 0 52px 19px #eda;
+  z-index: 15;
+}
+
+.player.dying button.dying {
+  background-color: #200;
+  border-color: #c33;
+  box-shadow: 0 0 16px 8px #200;
+  z-index: 10;
+}
+
+#gm-bar {
+  flex: 1;
+  max-height: 15rem;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 1rem;
+  border: 1px solid #888;
+  border-radius: 4px;
+  background-color: #333;
+  padding: 1rem;
+}
+
+#gm-bar.current-turn {
+  border-color: white;
+}
+
+#gm-bar>* {
+  flex: 1;
+}
+
+#random-encounter-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+#random-encounter-timer .indicator {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+#random-encounter-timer .indicator .item {
+  flex: 1;
+  max-width: 5rem;
+  border: 1px solid #888;
+  border-radius: 4px;
+  color: #eee;
+  background-color: #444;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+#random-encounter-timer .indicator .item.current {
+  border-color: white;
+  color: #fff;
+  background-color: #555;
+}
+
+#random-encounter-timer .indicator .item.disabled {
+  border-color: #666;
+  color: #666;
+  background-color: #333;
+}
+
+#gm-bar.current-turn #random-encounter-now.current {
+  background-color: #570;
+  border-color: #dfa;
+  box-shadow: 0 0 16px 8px #460;
+}
+
+#light-timer {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+#light-timer .description {
+  font-size: x-large;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-around;
+  padding: 2rem;
+}
+
+#light-timer .description>* {
+  font-family: serif;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem 0.5rem;
+  color: #985;
+  background-color: #fff;
+  border-color: #feb;
+  border-radius: 1rem;
+  box-shadow: 0 0 52px 19px #eda;
+  z-index: 15;
+}
+
+#light-timer.expired .description>* {
+  color: #555;
+  background-color: #000;
+  border-color: black;
+  box-shadow: 0 0 52px 19px #000;
+}
+
+#big-buttons {
+  flex: 0.5;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+#big-buttons #next-turn {
+  flex: 1;
+}
+
+#footer {
+  font-size: small;
+  text-align: center;
+  color: #888;
+}
+
+#footer a {
+  color: #aaa;
+}
