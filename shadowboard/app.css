@@ -1,7 +1,7 @@
 body {
   touch-action: manipulation;
   margin: 0.5rem;
-  background: #222;
+  background: #000;
   color: #ddd;
   font-family: sans-serif;
 }
@@ -22,8 +22,9 @@ button {
   padding-left: 0;
   padding-right: 0;
   color: #eee;
-  background-color: #555;
-  border: 1px solid #888;
+  background-color: #444;
+  border: 1px solid #666;
+  border-radius: 4px;
   margin: 1px;
 }
 
@@ -56,10 +57,11 @@ button {
 }
 
 .round-timers .timer .button-row {
-  flex: 1;
+  flex: 3;
 }
 
 .round-timers .timer .description {
+  flex: 1;
   min-width: 2em;
   display: flex;
   flex-flow: row nowrap;
@@ -82,10 +84,10 @@ button {
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
-  border: 1px solid #888;
+  border: 1px solid #666;
   border-radius: 4px;
   color: #eee;
-  background-color: #444;
+  background-color: #222;
   padding: 1rem;
 }
 
@@ -99,7 +101,7 @@ button {
 .player.current-turn {
   border-color: white;
   color: #fff;
-  background-color: #4a4a4a;
+  background-color: #2b2b2b;
 }
 
 .player .name {
@@ -133,7 +135,7 @@ button {
   z-index: 10;
 }
 
-.current-turn .round-timers .expired .description {
+.round-timers .expired .description {
   color: #ccf;
   background-color: #003;
   box-shadow: 0 0 16px 8px #003;
@@ -146,14 +148,15 @@ button {
   flex-direction: row;
   align-items: stretch;
   gap: 1rem;
-  border: 1px solid #888;
+  border: 1px solid #666;
   border-radius: 4px;
-  background-color: #333;
+  background-color: #222;
   padding: 1rem;
 }
 
 #gm-bar.current-turn {
   border-color: white;
+  background-color: #2b2b2b;
 }
 
 #gm-bar>* {
@@ -185,7 +188,7 @@ button {
   width: 2rem;
   line-height: 1.9rem;
   font-size: 1rem;
-  border: 1px solid #888;
+  border: 1px solid #666;
   border-radius: 1.5rem;
   color: #eee;
   background-color: #444;
@@ -197,13 +200,13 @@ button {
 #random-encounter-timer .indicator .item.current {
   border-color: white;
   color: #fff;
-  background-color: #555;
+  background-color: #444;
 }
 
 #random-encounter-timer .indicator .item.disabled {
-  border-color: #666;
-  color: #666;
-  background-color: #333;
+  border-color: #555;
+  color: #555;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 #gm-bar.current-turn #random-encounter-now.current {
@@ -242,7 +245,7 @@ button {
 }
 
 #light-timer.expired .description>* {
-  color: #555;
+  color: #777;
   background-color: #000;
   border-color: black;
   box-shadow: 0 0 52px 19px #000;
@@ -259,6 +262,12 @@ button {
 
 #big-buttons #next-turn {
   flex: 1;
+}
+
+#next-turn::after {
+  display: block;
+  content: "▶︎";
+  font-size: 3rem;
 }
 
 #footer {
