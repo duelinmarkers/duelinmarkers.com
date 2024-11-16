@@ -3,7 +3,7 @@ body {
   margin: 0.5rem;
   background: #000;
   color: #ddd;
-  font-family: sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 #app {
@@ -16,8 +16,9 @@ body {
 }
 
 button {
+  font-family: "Montserrat", sans-serif;
   min-height: 3rem;
-  min-width: 1rem;
+  min-width: 3rem;
   text-align: center;
   padding-left: 0;
   padding-right: 0;
@@ -93,9 +94,9 @@ button {
 
 .player input {
   font-size: 1em;
-  font-weight: bold;
+  font-weight: normal;
   font-family: serif;
-  width: 98%;
+  width: 90%;
 }
 
 .player.current-turn {
@@ -105,9 +106,18 @@ button {
 }
 
 .player .name {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: x-large;
+  font-weight: normal;
   font-family: serif;
+}
+
+.player .name button {
+  font-size: x-large;
+  float: right;
+}
+
+.player.current-turn .name button {
+  border-color: white;
 }
 
 .player .primary-toggles button {
@@ -262,6 +272,15 @@ button {
 
 #big-buttons #next-turn {
   flex: 1;
+}
+
+#gm-bar .jump-turn {
+  flex: 0.5;
+  font-size: x-large;
+}
+
+#gm-bar.current-turn .jump-turn {
+  border-color: #fff;
 }
 
 #next-turn::after {
