@@ -16,3 +16,5 @@ defaults:
       layout: post
 gems:
   - jekyll-feed
+feed:
+  tags: true
