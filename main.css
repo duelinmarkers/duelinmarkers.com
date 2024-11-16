@@ -3,35 +3,43 @@ body {
     margin: 0 1%;
     background-color: #D8C773;
     color: #000;
-    font-family: CarlitoRegular, Calibri, sans-serif;
+    font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 120%;
-    line-height: 180%;
+    line-height: 150%;
 }
 
-a:link, a:visited {
+a:link,
+a:visited {
     color: #453578;
     text-decoration: none;
     border-bottom: 1px solid #d5d1e2;
     box-shadow: inset 0 -2px 0 #d5d1e2;
 }
 
-a:hover, a:active {
+a:hover,
+a:active {
     border-top: 5px solid #d5d1e2;
     background-color: #d5d1e2;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     font-family: CarlitoBoldItalic, Calibri, sans-serif;
     margin: 1ex 0;
     font-style: italic;
 }
 
-header, .main, .rightsidebar {
+header,
+.main,
+.rightsidebar {
     border: 2px solid #AF9C40;
     border-radius: 8px;
 }
 
-header, .main {
+header,
+.main {
     margin: 1ex 31% 1ex auto;
     padding: 0 1em;
     max-width: 750px;
@@ -69,18 +77,30 @@ header h2:before {
     color: #84721B;
 }
 
-.main article {
+article {
     margin: 2ex 0 4ex 0;
     padding-bottom: 2ex;
     border-bottom: 2px solid #AF9C40;
 }
 
-.main article:last-child {
+article:last-child {
     padding-bottom: 1ex;
     border-bottom: none;
 }
 
-h1, h2, h3, h4 {
+article .post-date {
+    font-size: smaller;
+    display: block;
+}
+
+article p {
+    margin: 1ex 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
     color: #453578;
 }
 
@@ -93,13 +113,15 @@ iframe.video-embed {
     max-width: 100%;
 }
 
-code { /* inline */
+code {
+    /* inline */
     background-color: white;
     padding: 2px;
     border: 1px solid #D8C773;
 }
 
-div.highlight { /* code blocks */
+div.highlight {
+    /* code blocks */
     border: 1px solid #D8C773;
     line-height: 100%;
     padding: 0 .5em;
