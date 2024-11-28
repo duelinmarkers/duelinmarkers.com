@@ -29,6 +29,12 @@ button {
   margin: 1px;
 }
 
+button:disabled {
+  color: #555;
+  background-color: #333;
+  border-color: #555;
+}
+
 .button-row {
   width: 100%;
   display: flex;
@@ -120,7 +126,7 @@ button {
   border-color: white;
 }
 
-.player .primary-toggles button {
+.player .status-toggles button {
   font-size: large;
 }
 
@@ -143,6 +149,10 @@ button {
   border-color: #c33;
   box-shadow: 0 0 16px 8px #200;
   z-index: 10;
+}
+
+.player .move-player button {
+  font-size: larger;
 }
 
 .round-timers .expired .description {
@@ -269,7 +279,8 @@ button {
   gap: 1rem;
 }
 
-#big-buttons #next-turn {
+#big-buttons #next-turn,
+#big-buttons #done-editing {
   flex: 1;
 }
 
