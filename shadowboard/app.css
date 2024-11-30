@@ -12,13 +12,13 @@ body {
   margin: 0 auto;
   display: flex;
   flex-flow: column nowrap;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
 }
 
 button {
   font-family: "Montserrat", sans-serif;
   min-height: 2.5rem;
-  min-width: 2.5rem;
+  min-width: 2rem;
   text-align: center;
   padding-left: 0;
   padding-right: 0;
@@ -41,7 +41,7 @@ button:disabled {
   flex-flow: row wrap;
   align-items: stretch;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: min(0.5rem, 0.5vw);
 }
 
 .button-row>button {
@@ -52,7 +52,7 @@ button:disabled {
   display: flex;
   flex-flow: column nowrap;
   align-items: stretch;
-  gap: 0.5rem;
+  gap: min(0.5rem, 0.5vw);
 }
 
 .round-timers .timer {
@@ -60,7 +60,7 @@ button:disabled {
   flex-flow: row wrap;
   justify-content: space-between;
   align-items: stretch;
-  gap: 0.5rem;
+  gap: min(0.5rem, 0.5vw);
 }
 
 .round-timers .timer .button-row {
@@ -81,7 +81,7 @@ button:disabled {
   display: flex;
   flex-flow: row wrap;
   align-items: stretch;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
 }
 
 .player {
@@ -90,12 +90,12 @@ button:disabled {
   max-width: 40%;
   display: flex;
   flex-flow: column nowrap;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
   border: 1px solid #666;
   border-radius: 4px;
   color: #eee;
   background-color: #222;
-  padding: 1rem;
+  padding: min(1rem, 1vw);
 }
 
 .player input {
@@ -140,7 +140,7 @@ button:disabled {
 .player.light-bearer button.light-bearer {
   background-color: #fff;
   border-color: #feb;
-  box-shadow: 0 0 52px 19px #eda;
+  box-shadow: 0 0 min(52px, 4vw) min(19px, 2vw) #eda;
   z-index: 15;
 }
 
@@ -166,11 +166,11 @@ button:disabled {
   display: flex;
   flex-flow: row wrap;
   align-items: stretch;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
   border: 1px solid #666;
   border-radius: 4px;
   background-color: #222;
-  padding: 1rem;
+  padding: min(1rem, 1vw);
 }
 
 #gm-bar.current-turn {
@@ -184,9 +184,9 @@ button:disabled {
 
 #random-encounter-timer {
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: column wrap;
   align-items: stretch;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
 }
 
 #random-encounter-timer button.selected {
@@ -196,23 +196,23 @@ button:disabled {
 #random-encounter-timer .indicator {
   width: 100%;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
 }
 
 #random-encounter-timer .indicator .item {
   height: 2rem;
   width: 2rem;
   line-height: 1.9rem;
-  font-size: 1rem;
+  font-size: min(1rem, 2vw);
   border: 1px solid #666;
   border-radius: 1.5rem;
   color: #eee;
   background-color: #444;
   text-align: center;
-  padding: 0.5rem;
+  padding: min(0.5rem, 0.5vw);
   white-space: nowrap;
 }
 
@@ -238,7 +238,7 @@ button:disabled {
   display: flex;
   flex-flow: column nowrap;
   align-items: stretch;
-  gap: 0.5rem;
+  gap: min(0.5rem, 0.5vw);
 }
 
 #light-timer .description {
@@ -247,19 +247,19 @@ button:disabled {
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-around;
-  padding: 2rem;
+  padding: min(2rem, 2vw);
 }
 
 #light-timer .description>* {
   font-family: serif;
   font-weight: bold;
   text-align: center;
-  padding: 1rem 0.5rem;
+  padding: min(1rem, 1vw);
   color: #985;
   background-color: #fff;
   border-color: #feb;
   border-radius: 1rem;
-  box-shadow: 0 0 52px 19px #eda;
+  box-shadow: 0 0 min(52px, 4vw) min(19px, 2vw) #eda;
   z-index: 15;
 }
 
@@ -276,7 +276,7 @@ button:disabled {
   flex-flow: column nowrap;
   align-items: stretch;
   justify-content: space-around;
-  gap: 1rem;
+  gap: min(1rem, 1vw);
 }
 
 #big-buttons #next-turn,
@@ -296,7 +296,7 @@ button:disabled {
 #next-turn::after {
   display: block;
   content: "▶︎";
-  font-size: 3rem;
+  font-size: min(3rem, 3vw);
 }
 
 #footer {
