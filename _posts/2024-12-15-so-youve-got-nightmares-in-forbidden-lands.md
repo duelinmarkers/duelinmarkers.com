@@ -10,9 +10,9 @@ I rolled **Nightmares** for (1d6) 4 days.
 This was the first time failure to sleep seemed likely, so I reviewed the rules—emphasis below is mine.
 
 > You need to sleep for at least one Quarter Day of each day. After one day without sleep, you become SLEEPY. Being SLEEPY has several effects:
-> ✥ **You cannot recover Wits, except through magic.** If your Wits are Broken while SLEEPY, you must sleep for at least one Quarter Day to get back up again.
-> ✥ **You suffer one point of damage to your Wits each day.** If this damage breaks your Wits, you collapse and sleep for at least one Quarter Day.
-> ✥ As soon as you have slept for at least a Quarter Day, you are no longer SLEEPY, and you can recover Wits normally.
+> - **You cannot recover Wits, except through magic.** If your Wits are Broken while SLEEPY, you must sleep for at least one Quarter Day to get back up again.
+> - **You suffer one point of damage to your Wits each day.** If this damage breaks your Wits, you collapse and sleep for at least one Quarter Day.
+> - As soon as you have slept for at least a Quarter Day, you are no longer SLEEPY, and you can recover Wits normally.
 
 On that second bullet, I'm assuming the collapse is _in addition_ to rolling another Horror. The Insight skill is backed by Wits, so this sounded like a potential death-spiral, where I become re-broken and have to roll for yet more Horror, some of which are far worse than Nightmares.
 
