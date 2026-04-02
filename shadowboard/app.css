@@ -241,6 +241,10 @@ button:disabled {
   gap: min(0.5rem, 0.5vw);
 }
 
+#light-timer button.selected {
+  border-color: white;
+}
+
 #light-timer .description {
   font-size: x-large;
   display: flex;
